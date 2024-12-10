@@ -20,10 +20,10 @@ CREATE TABLE IF NOT EXISTS block_type_properties (
     name TEXT NOT NULL,
     value_type TEXT CHECK (value_type IN ('str', 'bool', 'num')) NOT NULL,
     default_value TEXT,
-    type_id UUID NOT NULL,
+    block_type_id UUID NOT NULL,
 
     CONSTRAINT fk_type_id
-        FOREIGN KEY(type_id)
+        FOREIGN KEY(block_type_id)
         REFERENCES block_types(id)
         ON DELETE CASCADE
 );
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS blocks (
     name TEXT NOT NULL,
     position INT NOT NULL,
     workflow_id UUID NOT NULL,
-    type_id UUID NOT NULL,
+    block_type_id UUID NOT NULL,
 
     CONSTRAINT fk_workflow_id
         FOREIGN KEY(workflow_id)
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS blocks (
         ON DELETE CASCADE,
 
     CONSTRAINT fk_type_id
-        FOREIGN KEY(type_id)
+        FOREIGN KEY(block_type_id)
         REFERENCES block_types(id)
         ON DELETE CASCADE
 );

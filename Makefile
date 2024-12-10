@@ -1,5 +1,5 @@
 run:
-	go run cmd/api/main.go
+	go run cmd/api-server/main.go
 
 mig-new:
 	migrate create -ext sql -dir migrations -seq $(NAME)
