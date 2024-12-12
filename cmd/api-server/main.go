@@ -1,8 +1,10 @@
 package main
 
 import (
-	"github.com/sentry-lab/fabdb/internal/api"
+	"fmt"
 	"net/http"
+
+	"github.com/sentry-lab/fabdb/internal/api"
 )
 
 func main() {
@@ -11,5 +13,6 @@ func main() {
 		Handler: api.InitRouter(),
 	}
 
-	server.ListenAndServe()
+	err := server.ListenAndServe()
+	fmt.Println("err:", err)
 }
