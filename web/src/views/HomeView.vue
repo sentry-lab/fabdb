@@ -1,3 +1,5 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import Button from "primevue/button";
+</script>
 
-<template>test</template>
+<template><Button>Hello!</Button></template>
