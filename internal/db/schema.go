@@ -1,47 +1,45 @@
 package db
 
-import "github.com/google/uuid"
-
 type User struct {
-	id    uuid.UUID
-	name  string
-	email string
+	Id    string
+	Name  string
+	Email string
 }
 
 type Workflow struct {
-	id   uuid.UUID
-	name string
+	Id   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type BlockType struct {
-	id        uuid.UUID
+	id        string
 	name      string
 	is_preset bool
 }
 
 type BlockTypeProperty struct {
-	id            uuid.UUID
+	id            string
 	name          string
 	value_type    string
 	default_value string
-	block_type_id uuid.UUID
+	block_type_id string
 	block_type    *BlockType
 }
 
 type Block struct {
-	id            uuid.UUID
+	id            string
 	name          string
 	position      int
-	workflow_id   uuid.UUID
+	workflow_id   string
 	workflow      *Workflow
-	block_type_id uuid.UUID
+	block_type_id string
 	block_type    *BlockType
 }
 
 type BlockProperty struct {
-	id       uuid.UUID
+	id       string
 	name     string
 	value    string
-	block_id uuid.UUID
+	block_id string
 	block    *Block
 }
