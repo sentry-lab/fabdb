@@ -13,6 +13,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <h1>Hello!</h1>
   <DataTable :value="workflows">
     <Column field="id" header="ID" />
     <Column field="name" header="Name" />

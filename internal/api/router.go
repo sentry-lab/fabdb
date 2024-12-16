@@ -17,11 +17,9 @@ func InitRouter(app *App) *http.ServeMux {
 	router := http.NewServeMux()
 
 	router.HandleFunc("GET /workflows", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Content-Type", "application/json")
+		SetHeaders(&w)
 
 		data := db.GetWorkflows(app.DB)
-		log.Println(data)
 		jsonData, err := json.Marshal(data)
 		if err != nil {
 			log.Println("err marshaling workflows", err)
