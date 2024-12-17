@@ -30,7 +30,6 @@ CREATE TABLE IF NOT EXISTS block_type_properties (
 
 CREATE TABLE IF NOT EXISTS blocks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
     position INT NOT NULL,
     workflow_id UUID NOT NULL,
     block_type_id UUID NOT NULL,

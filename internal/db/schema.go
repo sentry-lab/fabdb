@@ -28,7 +28,6 @@ type BlockTypeProperty struct {
 
 type Block struct {
 	id            string
-	name          string
 	position      int
 	workflow_id   string
 	workflow      *Workflow

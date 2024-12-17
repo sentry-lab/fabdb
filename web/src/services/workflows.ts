@@ -1,12 +1,18 @@
-import api from "@/api";
-
 export interface Workflow {
   id: string;
   name: string;
 }
 
 export const GetWorkflows = async (): Promise<Workflow[]> => {
-  let resp = await api.get("/workflows");
+  return [
+    { id: "1", name: "Workflow 1" },
+    { id: "2", name: "Workflow 2" },
+  ];
+};
 
-  return resp.data;
+export const GetWorkflow = async (id: string): Promise<Workflow> => {
+  if (id == "1") {
+    return { id: "1", name: "Workflow 1" };
+  }
+  return { id: "2", name: "Workflow 2" };
 };

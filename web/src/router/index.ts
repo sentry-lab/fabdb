@@ -8,6 +8,16 @@ const router = createRouter({
       name: "home",
       component: () => import("@/views/HomeView.vue"),
     },
+    {
+      path: "/workflows",
+      name: "workflows",
+      component: () => import("@/views/WorkflowListView.vue"),
+    },
+    {
+      path: "/workflows/:id",
+      name: "workflow",
+      component: () => import("@/views/WorkflowView.vue"),
+    },
   ],
 });
 

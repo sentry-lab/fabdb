@@ -34,6 +34,9 @@ const PrimeVuePreset = definePreset(Aura, {
 app.use(PrimeVue, {
   theme: {
     preset: PrimeVuePreset,
+    options: {
+      darkModeSelector: ".dark-mode",
+    },
   },
   ripple: true,
 });
