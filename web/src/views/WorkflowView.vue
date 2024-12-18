@@ -2,25 +2,37 @@
 import Button from "primevue/button";
 import Column from "primevue/column";
 import DataTable, { type DataTableRowReorderEvent } from "primevue/datatable";
-import { onMounted, ref } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
-import ContentSave from "@/icons/ContentSave.vue";
+import SmartInput from "@/components/SmartInput.vue";
 import Delete from "@/icons/Delete.vue";
 import Plus from "@/icons/Plus.vue";
 import PuzzleEdit from "@/icons/PuzzleEdit.vue";
 import PuzzleEditOutline from "@/icons/PuzzleEditOutline.vue";
-import { type Block, GetBlocks } from "@/services/blocks";
+import { type Block, GetBlocks, SaveBlocks } from "@/services/blocks";
 import { GetWorkflow, type Workflow } from "@/services/workflows";
 
 const route = useRoute();
 const workflow = ref<Workflow>();
-const blocks = ref<Block[]>();
+const blocks = reactive<Block[]>([]);
 const currentlyEditing = ref<number>(0);
+const saving = ref(false);
+const saveRemaing = ref(false);
 
-const save = () => {
-  console.log("save");
-};
+watch(blocks, async (newBlock, _) => {
+  saveRemaing.value = true;
+  if (saving.value) {
+    return;
+  }
+  saving.value = true;
+  while (saveRemaing.value) {
+    saveRemaing.value = false;
+    await SaveBlocks(newBlock);
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+  saving.value = false;
+});
 
 const addBlock = () => {
   console.log("add block");
@@ -35,14 +47,19 @@ const editBlock = (index: number) => {
 };
 
 const onRowReorder = (e: DataTableRowReorderEvent) => {
-  let currentId = blocks.value![currentlyEditing.value].id;
-  blocks.value = e.value;
-  currentlyEditing.value = blocks.value.findIndex((b) => b.id == currentId);
+  let currentId = blocks[currentlyEditing.value].id;
+  for (let i = 0; i < blocks.length; i++) {
+    blocks[i] = e.value[i];
+  }
+  currentlyEditing.value = blocks.findIndex((b) => b.id == currentId);
 };
 
 onMounted(async () => {
   workflow.value = await GetWorkflow(route.params.id as string);
-  blocks.value = await GetBlocks(workflow.value.id);
+  let unReactiveBlocks = await GetBlocks(workflow.value.id);
+  for (let i = 0; i < unReactiveBlocks.length; i++) {
+    blocks.push(unReactiveBlocks[i]);
+  }
 });
 </script>
 
@@ -54,12 +71,9 @@ onMounted(async () => {
 
   <div>
     <Button @click="addBlock()"><Plus style="height: 1.5em" />Add Block</Button>
-    <Button
-      @click="save()"
-      style="margin-left: 1em; background-color: var(--p-gray-500); border-color: var(--p-gray-500)"
-    >
-      <ContentSave style="height: 1.5em" />Save
-    </Button>
+    <span style="margin-left: 1em; color: var(--p-gray-500)">
+      <span v-if="saving">Saving...</span><span v-else>Saved!</span>
+    </span>
   </div>
   <div style="display: flex">
     <div style="flex: 4">
@@ -76,26 +90,34 @@ onMounted(async () => {
         </Column>
       </DataTable>
     </div>
-    <div v-if="blocks" style="flex: 8; display: flex; flex-direction: column; margin: 0 2em">
+    <div
+      v-if="blocks.length > 0"
+      style="flex: 8; display: flex; flex-direction: column; margin: 0 2em"
+    >
       <div>
         <h2 style="display: inline">{{ blocks[currentlyEditing].block_type.name }}</h2>
-        <div style="float: right">
+        <div style="float: right; margin-bottom: 0.5em">
           <Button
             @click="deleteBlock()"
             style="background-color: var(--p-red-500); border-color: var(--p-red-500)"
-            ><Delete style="height: 1.5em" />Delete Block</Button
           >
+            <Delete style="height: 1.5em" />Delete Block
+          </Button>
         </div>
       </div>
-      <div v-for="prop in blocks[currentlyEditing].properties" :key="prop.id" style="display: flex">
-        <div style="flex: 3">
-          <b>{{ prop.name }}</b> ({{
-            blocks[currentlyEditing].block_type.properties.find((p) => p.name == prop.name)
-              ?.value_type
-          }})
+      <div
+        v-for="i in blocks[currentlyEditing].properties.length"
+        style="display: flex; margin: 0.25em 0; align-items: center"
+      >
+        <div style="flex: 6">
+          <b>{{ blocks[currentlyEditing].properties[i - 1].name }}</b>
         </div>
         <div style="flex: 6">
-          {{ prop.value }}
+          <SmartInput
+            v-model="blocks[currentlyEditing].properties[i - 1].value"
+            :value-type="blocks[currentlyEditing].block_type.properties[i - 1].value_type"
+            :default-value="blocks[currentlyEditing].block_type.properties[i - 1].default_value"
+          />
         </div>
       </div>
     </div>

@@ -19,10 +19,11 @@ export interface BlockType {
   properties: BlockTypeProperty[];
 }
 
+export type ValueType = "text" | "boolean" | "number" | "date";
 export interface BlockTypeProperty {
   id: string;
   name: string;
-  value_type: string;
+  value_type: ValueType;
   default_value: string;
 }
 
@@ -44,9 +45,21 @@ export const GetBlocks = async (workflow_id: string): Promise<Block[]> => {
             default_value: "",
           },
           {
-            id: "4",
+            id: "2",
             name: "wow",
             value_type: "text",
+            default_value: "",
+          },
+          {
+            id: "3",
+            name: "Happened on",
+            value_type: "date",
+            default_value: "",
+          },
+          {
+            id: "4",
+            name: "Complete",
+            value_type: "boolean",
             default_value: "",
           },
         ],
@@ -58,36 +71,25 @@ export const GetBlocks = async (workflow_id: string): Promise<Block[]> => {
           value: "123",
         },
         {
-          id: "3",
+          id: "2",
           name: "wow",
           value: "hello",
         },
-      ],
-    },
-    {
-      id: "2",
-      position: 1,
-      workflow_id: workflow_id,
-      block_type: {
-        id: "2",
-        name: "Other Block",
-        is_preset: false,
-        properties: [
-          {
-            id: "2",
-            name: "Worked on",
-            value_type: "text",
-            default_value: "",
-          },
-        ],
-      },
-      properties: [
         {
-          id: "2",
-          name: "Worked on",
-          value: "hello",
+          id: "3",
+          name: "Happened on",
+          value: "2024-12-01",
+        },
+        {
+          id: "4",
+          name: "Complete",
+          value: "true",
         },
       ],
     },
   ];
+};
+
+export const SaveBlocks = async (blocks: Block[]) => {
+  console.log("saving", JSON.stringify(blocks));
 };

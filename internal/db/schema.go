@@ -17,10 +17,17 @@ type BlockType struct {
 	is_preset bool
 }
 
+type ValueType string
+
+var Text ValueType = "text"
+var Boolean ValueType = "boolean"
+var Number ValueType = "number"
+var Date ValueType = "date"
+
 type BlockTypeProperty struct {
 	id            string
 	name          string
-	value_type    string
+	value_type    ValueType
 	default_value string
 	block_type_id string
 	block_type    *BlockType

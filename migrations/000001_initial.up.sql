@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS block_types (
 CREATE TABLE IF NOT EXISTS block_type_properties (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
-    value_type TEXT CHECK (value_type IN ('str', 'bool', 'num')) NOT NULL,
+    value_type TEXT CHECK (value_type IN ('text', 'boolean', 'number', 'date')) NOT NULL,
     default_value TEXT,
     block_type_id UUID NOT NULL,
 
