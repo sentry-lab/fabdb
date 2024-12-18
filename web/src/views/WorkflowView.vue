@@ -2,6 +2,8 @@
 import Button from "primevue/button";
 import Column from "primevue/column";
 import DataTable, { type DataTableRowReorderEvent } from "primevue/datatable";
+import Popover from "primevue/popover";
+import Select from "primevue/select";
 import { onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
@@ -10,15 +12,27 @@ import Delete from "@/icons/Delete.vue";
 import Plus from "@/icons/Plus.vue";
 import PuzzleEdit from "@/icons/PuzzleEdit.vue";
 import PuzzleEditOutline from "@/icons/PuzzleEditOutline.vue";
-import { type Block, GetBlocks, SaveBlocks } from "@/services/blocks";
+import {
+  type Block,
+  type BlockType,
+  GetBlockTypes,
+  GetBlocks,
+  SaveBlocks,
+} from "@/services/blocks";
 import { GetWorkflow, type Workflow } from "@/services/workflows";
 
 const route = useRoute();
+const addPopover = ref<InstanceType<typeof Popover> | null>();
+
 const workflow = ref<Workflow>();
 const blocks = reactive<Block[]>([]);
+const blockTypes = ref<BlockType[]>();
+
 const currentlyEditing = ref<number>(0);
 const saving = ref(false);
 const saveRemaing = ref(false);
+
+const blockToAdd = ref<BlockType>();
 
 watch(blocks, async (newBlock, _) => {
   saveRemaing.value = true;
@@ -35,11 +49,28 @@ watch(blocks, async (newBlock, _) => {
 });
 
 const addBlock = () => {
-  console.log("add block");
+  addPopover.value!.hide();
+  let newBlock: Block = {
+    id: "",
+    position: blocks.length,
+    workflow_id: workflow.value!.id,
+    block_type: blockToAdd.value!,
+    properties: [],
+  };
+  for (let i = 0; i < blockToAdd.value!.properties.length; i++) {
+    newBlock.properties.push({
+      id: "",
+      name: blockToAdd.value!.properties[i].name,
+      value: blockToAdd.value!.properties[i].default_value,
+    });
+  }
+  blocks.push(newBlock);
+
+  blockToAdd.value = undefined;
 };
 
 const deleteBlock = () => {
-  console.log("delete block", currentlyEditing.value);
+  blocks.splice(currentlyEditing.value, 1);
 };
 
 const editBlock = (index: number) => {
@@ -60,6 +91,7 @@ onMounted(async () => {
   for (let i = 0; i < unReactiveBlocks.length; i++) {
     blocks.push(unReactiveBlocks[i]);
   }
+  blockTypes.value = await GetBlockTypes();
 });
 </script>
 
@@ -70,7 +102,25 @@ onMounted(async () => {
   </div>
 
   <div>
-    <Button @click="addBlock()"><Plus style="height: 1.5em" />Add Block</Button>
+    <Button
+      @click="
+        (e) => {
+          addPopover!.toggle(e);
+        }
+      "
+    >
+      <Plus style="height: 1.5em" />Add Block
+    </Button>
+    <Popover ref="addPopover">
+      <Select
+        v-model="blockToAdd"
+        :options="blockTypes"
+        optionLabel="name"
+        style="width: 15em"
+        @change="addBlock"
+      />
+    </Popover>
+
     <span style="margin-left: 1em; color: var(--p-gray-500)">
       <span v-if="saving">Saving...</span><span v-else>Saved!</span>
     </span>
@@ -97,10 +147,7 @@ onMounted(async () => {
       <div>
         <h2 style="display: inline">{{ blocks[currentlyEditing].block_type.name }}</h2>
         <div style="float: right; margin-bottom: 0.5em">
-          <Button
-            @click="deleteBlock()"
-            style="background-color: var(--p-red-500); border-color: var(--p-red-500)"
-          >
+          <Button @click="deleteBlock()" severity="danger">
             <Delete style="height: 1.5em" />Delete Block
           </Button>
         </div>

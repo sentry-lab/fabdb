@@ -27,6 +27,42 @@ export interface BlockTypeProperty {
   default_value: string;
 }
 
+export const GetBlockTypes = async (): Promise<BlockType[]> => {
+  return [
+    {
+      id: "1",
+      name: "Test Block",
+      is_preset: false,
+      properties: [
+        {
+          id: "1",
+          name: "test",
+          value_type: "number",
+          default_value: "",
+        },
+        {
+          id: "2",
+          name: "wow",
+          value_type: "text",
+          default_value: "",
+        },
+        {
+          id: "3",
+          name: "Happened on",
+          value_type: "date",
+          default_value: "",
+        },
+        {
+          id: "4",
+          name: "Complete",
+          value_type: "boolean",
+          default_value: "",
+        },
+      ],
+    },
+  ];
+};
+
 export const GetBlocks = async (workflow_id: string): Promise<Block[]> => {
   return [
     {
