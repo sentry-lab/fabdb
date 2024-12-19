@@ -4,9 +4,19 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT NOT NULL UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS wafers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+);
+
 CREATE TABLE IF NOT EXISTS workflows (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    wafer_id UUID,
+
+    CONSTRAINT fk_wafer_id
+        FOREIGN KEY(wafer_id)
+        REFERENCES wafers(id)
+        ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS block_types (

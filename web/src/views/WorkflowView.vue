@@ -2,14 +2,12 @@
 import Button from "primevue/button";
 import Column from "primevue/column";
 import DataTable, { type DataTableRowReorderEvent } from "primevue/datatable";
-import Popover from "primevue/popover";
 import Select from "primevue/select";
-import { onMounted, reactive, ref, watch } from "vue";
+import { nextTick, onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import SmartInput from "@/components/SmartInput.vue";
 import Delete from "@/icons/Delete.vue";
-import Plus from "@/icons/Plus.vue";
 import PuzzleEdit from "@/icons/PuzzleEdit.vue";
 import PuzzleEditOutline from "@/icons/PuzzleEditOutline.vue";
 import {
@@ -22,7 +20,6 @@ import {
 import { GetWorkflow, type Workflow } from "@/services/workflows";
 
 const route = useRoute();
-const addPopover = ref<InstanceType<typeof Popover> | null>();
 
 const workflow = ref<Workflow>();
 const blocks = reactive<Block[]>([]);
@@ -32,7 +29,7 @@ const currentlyEditing = ref<number>(0);
 const saving = ref(false);
 const saveRemaing = ref(false);
 
-const blockToAdd = ref<BlockType>();
+const blockToAdd = ref<BlockType | null>(null);
 
 watch(blocks, async (newBlock, _) => {
   saveRemaing.value = true;
@@ -49,28 +46,37 @@ watch(blocks, async (newBlock, _) => {
 });
 
 const addBlock = () => {
-  addPopover.value!.hide();
+  if (blockToAdd.value == null) {
+    return;
+  }
   let newBlock: Block = {
     id: "",
     position: blocks.length,
     workflow_id: workflow.value!.id,
-    block_type: blockToAdd.value!,
+    block_type: blockToAdd.value,
     properties: [],
   };
-  for (let i = 0; i < blockToAdd.value!.properties.length; i++) {
+  for (let i = 0; i < blockToAdd.value.properties.length; i++) {
     newBlock.properties.push({
       id: "",
-      name: blockToAdd.value!.properties[i].name,
-      value: blockToAdd.value!.properties[i].default_value,
+      name: blockToAdd.value.properties[i].name,
+      value: blockToAdd.value.properties[i].default_value,
     });
   }
   blocks.push(newBlock);
+  currentlyEditing.value = blocks.length - 1;
 
-  blockToAdd.value = undefined;
+  nextTick().then(() => {
+    blockToAdd.value = null;
+  });
 };
 
 const deleteBlock = () => {
   blocks.splice(currentlyEditing.value, 1);
+  currentlyEditing.value--;
+  if (currentlyEditing.value < 0) {
+    currentlyEditing.value = 0;
+  }
 };
 
 const editBlock = (index: number) => {
@@ -98,28 +104,21 @@ onMounted(async () => {
 <template>
   <div style="margin-bottom: 2em">
     <h1>{{ workflow?.name }}</h1>
-    Workflow
+    Wafer {{ workflow?.wafer.id }}
   </div>
 
-  <div>
-    <Button
-      @click="
-        (e) => {
-          addPopover!.toggle(e);
-        }
-      "
+  <div style="display: flex; align-items: center">
+    <Select
+      v-model="blockToAdd"
+      :options="blockTypes"
+      optionLabel="name"
+      @change="addBlock"
+      filter
+      placeholder="+ Add Block"
+      style="background-color: var(--p-primary-color)"
     >
-      <Plus style="height: 1.5em" />Add Block
-    </Button>
-    <Popover ref="addPopover">
-      <Select
-        v-model="blockToAdd"
-        :options="blockTypes"
-        optionLabel="name"
-        style="width: 15em"
-        @change="addBlock"
-      />
-    </Popover>
+      <template #dropdownicon><span></span></template>
+    </Select>
 
     <span style="margin-left: 1em; color: var(--p-gray-500)">
       <span v-if="saving">Saving...</span><span v-else>Saved!</span>
@@ -170,3 +169,13 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+
+<style lang="css" scoped>
+:deep(.p-select-dropdown) {
+  width: 0;
+}
+
+:deep(.p-select-label.p-placeholder) {
+  color: white !important;
+}
+</style>
